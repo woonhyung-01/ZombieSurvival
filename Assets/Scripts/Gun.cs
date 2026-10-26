@@ -24,7 +24,6 @@ public class Gun : MonoBehaviour
     private AudioSource gunAudioPlayer;
     public GunData gunData;
     
-
     private float fireDistance = 50f;
     private int ammoRemain;
     private int magAmmo;
@@ -83,7 +82,7 @@ public class Gun : MonoBehaviour
             hitPosition = fireTransform.position + fireTransform.forward * fireDistance;
         }
 
-        StartCoroutine(ShotEffect(hitPosition));
+        StartCoroutine(CoShotEffect(hitPosition));
 
         magAmmo--;
         uiManager.SetAmmoText(magAmmo, ammoRemain);
@@ -94,7 +93,7 @@ public class Gun : MonoBehaviour
         }
     }
 
-    private IEnumerator ShotEffect(Vector3 hitPosition)
+    private IEnumerator CoShotEffect(Vector3 hitPosition)
     {
         muzzleFlashEffect.Play();
         shellEjectEffect.Play();
@@ -118,23 +117,26 @@ public class Gun : MonoBehaviour
             return false;
         }
         
-        StartCoroutine(ReloadRoutine());
+        StartCoroutine(CoReloadRoutine());
         return true;
     }
-    private IEnumerator ReloadRoutine()
+    private IEnumerator CoReloadRoutine()
     {
         CurrentState = State.Reloading;
-        yield return new WaitForSeconds(gunData.reloadTime);
-
         gunAudioPlayer.PlayOneShot(gunData.reloadClip);
-        int ammoToFill = gunData.magCapacity - magAmmo;
+        yield return new WaitForSeconds(gunData.reloadTime - 0.5f);
+
+        int ammoToFill = Mathf.Min(gunData.magCapacity - magAmmo, ammoRemain);
 
         if(ammoRemain < ammoToFill)
         {
             ammoToFill = ammoRemain;
         }
+
         magAmmo += ammoToFill;
         ammoRemain -= ammoToFill;
+
+        uiManager.SetAmmoText(magAmmo, ammoRemain);
 
         CurrentState = State.Ready;
     }

@@ -23,11 +23,9 @@ public class PlayerShooter : MonoBehaviour
         {
             gun.Fire();
         }
-        else if (playerInput.Reload)
+        else if (playerInput.Reload && gun.Reload())
         {
-            gun.Reload();
-            playerAnimator.SetBool(IdReload, playerInput.Reload);
-            
+            playerAnimator.SetTrigger(IdReload);
         }
         
     }

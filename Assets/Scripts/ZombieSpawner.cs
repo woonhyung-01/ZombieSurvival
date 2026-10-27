@@ -4,15 +4,24 @@ using System.Collections.Generic;
 
 public class ZombieSpawner : MonoBehaviour
 {
-    public UIManager uIManager;
+    private GameManager gameManager;
+    private UIManager uIManager;
     public Zombie zombiePrefab;
     public ZombieData[] zombieDatas;
-    public Transform[] spawnPoints;
+    public Transform[] spawnPoints; //정적 배열
 
     private readonly List<Zombie> zombies = new List<Zombie>(); //<이거>의 List 컬렉션
-    private readonly List<Zombie> zombiePool = new List<Zombie>();
+    private readonly List<Zombie> zombiePool = new List<Zombie>(); //동적 배열
 
     private int wave = 0;
+
+
+    private void Start()
+    {
+        GameObject findGo = GameObject.FindWithTag("GameController");
+        gameManager = findGo.GetComponent<GameManager>();
+        uIManager = gameManager.uIManager;
+    }
 
     private void Update()
     {
@@ -46,6 +55,11 @@ public class ZombieSpawner : MonoBehaviour
             zombie = Instantiate(zombiePrefab);
             zombie.gameObject.SetActive(false);
             zombiePool.Add(zombie);
+
+            zombie.OnDead.AddListener(() => zombies.Remove(zombie)); //AddListener < event함수. 에드리스너에 반환형이 없는 메소드 참조
+            zombie.OnDead.AddListener(() => uIManager.SetWaveText(wave, zombies.Count));
+            zombie.OnDead.AddListener(() => StartCoroutine(CoReturnToPoolZombie(zombie)));
+            zombie.OnDead.AddListener(() => gameManager.AddScore(50));
         }
 
         zombie = zombiePool[0];
@@ -57,9 +71,7 @@ public class ZombieSpawner : MonoBehaviour
         zombies.Add(zombie);
         zombiePool.Remove(zombie);
 
-        zombie.OnDead.AddListener(() => zombies.Remove(zombie)); //AddListener < event함수. 에드리스너에 반환형이 없는 메소드 참조
-        zombie.OnDead.AddListener(() => uIManager.SetWaveText(wave, zombies.Count));
-        zombie.OnDead.AddListener(() => StartCoroutine(CoReturnToPoolZombie(zombie)));
+        
         
     }
     private IEnumerator CoReturnToPoolZombie(Zombie zombie)
@@ -67,5 +79,13 @@ public class ZombieSpawner : MonoBehaviour
         yield return new WaitForSeconds(5f);
         zombie.gameObject.SetActive(false);
         zombiePool.Add(zombie);
+    }
+
+    public void OnEndGame()
+    {
+        for (int i = zombies.Count - 1; i >= 0; --i)
+        {
+            zombies[i].Die();
+        }
     }
 }

@@ -40,6 +40,11 @@ public class Gun : MonoBehaviour
         bulletLineRenderer.positionCount = 2;
         bulletLineRenderer.enabled = false;
     }
+    public void AddAmmo(int add)
+    {
+        ammoRemain += add;
+        uiManager.SetAmmoText(magAmmo, ammoRemain);
+    }
 
     private void OnEnable()
     {

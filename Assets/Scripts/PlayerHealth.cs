@@ -34,6 +34,7 @@ public class PlayerHealth : LivingEntity
 
         uiHealth.gameObject.SetActive(true);
         uiHealth.fillAmount = Health / startingHealth;
+        
     }
 
     private void Update()
@@ -54,6 +55,12 @@ public class PlayerHealth : LivingEntity
         base.OnDamage(damage, hitPoint, hitNormal);
         uiHealth.fillAmount = Health / startingHealth;
     }
+    public override void OnHeal(float health)
+    {
+        base.OnHeal(health);
+        uiHealth.fillAmount = Health / startingHealth;
+
+    }
 
     public override void Die()
     {
@@ -67,4 +74,5 @@ public class PlayerHealth : LivingEntity
 
         uiHealth.gameObject.SetActive(false);
     }
+
 }

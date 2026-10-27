@@ -34,4 +34,15 @@ public class PlayerMovement : MonoBehaviour
 
         
     }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Item"))
+        {
+            IItem item = other.GetComponent<IItem>();
+            if(item != null)
+            {
+                item.Use(gameObject);
+            }
+        }      
+    }
 }
